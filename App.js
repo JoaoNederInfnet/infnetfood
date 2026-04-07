@@ -1,6 +1,18 @@
 /*IMPORTS*/
 import { View, Text, StyleSheet } from "react-native";
 import { StatusBar } from 'expo-status-bar';
+import * as Notifications from "expo-notifications";
+//========================================================
+
+/*CONFIGURAÇÃO GLOBAL DE NOTIFICAÇÕES*/
+//1)
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 //========================================================
 
 /*COMPONENTES USADOS*/
@@ -20,9 +32,10 @@ export default function App()
   //========================================================
   
   return (
-    
-         <AppNavigator />
-       
+    <>
+      <StatusBar style="auto" />
+      <AppNavigator />
+    </>
   );
 }
 
