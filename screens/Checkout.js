@@ -60,9 +60,19 @@ export default function Checkout()
   {
     async function pedirPermissao() 
     {
-      const { status } = await Notifications.requestPermissionsAsync();
+      const { status } = await Notifications.getPermissionsAsync();
+
+      let finalStatus = status;
 
       if (status !== "granted") 
+      {
+        const { status: newStatus } =
+          await Notifications.requestPermissionsAsync();
+
+        finalStatus = newStatus;
+      }
+
+      if (finalStatus !== "granted") 
       {
         alert("Permissão de notificação negada!");
       }
@@ -74,34 +84,40 @@ export default function Checkout()
   
   /*MÉTODOS*/
   //1)
-  function finalizarPedido() 
+  async function finalizarPedido() 
+{
+  if (!endereco.trim() || !cartao.trim()) 
   {
-    if (!endereco.trim() || !cartao.trim()) 
-    {
-      alert("Preencha todos os campos!");
-      return;
-    }
-
-    const novoPedido = 
-    {
-      id: Date.now().toString(),
-      items,
-      endereco,
-      data: new Date().toLocaleString(),
-    };
-
-    addOrder(novoPedido);
-    clearCart();
-
-    enviarNotificacao();
-
-    // limpar campos após pedido
-    setEndereco("");
-    setCartao("");
-    setCep("");
-
-    navigation.navigate("Orders");
+    alert("Preencha todos os campos!");
+    return;
   }
+
+  const novoPedido = 
+  {
+    id: Date.now().toString(),
+    items,
+    endereco,
+    data: new Date().toLocaleString(),
+  };
+
+  addOrder(novoPedido);
+  clearCart();
+
+  try 
+  {
+    await enviarNotificacao();
+  } 
+  catch (error) 
+  {
+    console.log("Erro notificação:", error);
+  }
+
+  setEndereco("");
+  setCartao("");
+  setCep("");
+
+  navigation.navigate("Orders");
+}
   //----------------------------------//-------------------------------- 
   //2)
   async function handleBuscarCep() 
@@ -146,7 +162,7 @@ export default function Checkout()
         title: "Pedido confirmado!",
         body: "Seu pedido está sendo preparado!",
       },
-      trigger: null,
+      trigger: null ,
     });
   }
   //========================================================
